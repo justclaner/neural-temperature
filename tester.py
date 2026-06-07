@@ -13,10 +13,11 @@ for _ in range(trials):
     f = random.uniform(min_test_num, max_test_num)
     c = neural_network.predict(f)
     expected = generate_training.fahrenheitToCelsius(f)
-    prediction_correct = 100 * abs(expected - c) / expected <= accepted_percent_error
+    percent_error = 100 * abs(expected - c) / expected
+    prediction_correct = percent_error <= accepted_percent_error
     correct += prediction_correct
     if not prediction_correct and incorrect < max_incorrect_displayed:
-        print(f"{f} degrees fahrenheit was predicted incorrectly to be {c} degrees celsius!")
+        print(f"{f:.2f}F was predicted incorrectly to be {c:.2f}C! ({percent_error:.1f}% off from {expected:.2f}C)")
         incorrect += 1
 
 print(f"{100 * correct / trials}% accuracy!")

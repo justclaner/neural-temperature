@@ -108,5 +108,5 @@ if __name__ == "__main__":
 
     start_time = time.perf_counter()
     print("Starting training...")
-    train(10000)
+    train(100000)
     print(f"Training took {time.perf_counter() - start_time}s!")
