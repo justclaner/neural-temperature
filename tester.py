@@ -5,7 +5,7 @@ min_test_num = -300
 max_test_num = 300
 correct = 0
 
-error_delta = 10
+accepted_percent_error = 10
 max_incorrect_displayed = 5
 incorrect = 0
 trials = 1000
@@ -13,7 +13,7 @@ for _ in range(trials):
     f = random.uniform(min_test_num, max_test_num)
     c = neural_network.predict(f)
     expected = generate_training.fahrenheitToCelsius(f)
-    prediction_correct = abs(expected - c) <= error_delta
+    prediction_correct = 100 * abs(expected - c) / expected <= accepted_percent_error
     correct += prediction_correct
     if not prediction_correct and incorrect < max_incorrect_displayed:
         print(f"{f} degrees fahrenheit was predicted incorrectly to be {c} degrees celsius!")
