@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 script_dir = Path(__file__).resolve().parent
 model_file_name = "model.json"
-model_file_path = script_dir / model_file_name
+MODEL_FILE_PATH = script_dir / model_file_name
 
 # excludes 0 as a possible return value
 def random_uniform_start(a, b):
@@ -20,23 +20,23 @@ def random_uniform_start(a, b):
     diff = b - a
     return diff * (1.0 - random.random()) + a
 
-hidden_layer_size = 4
-weights = [[random_uniform_start(-1, 1) for _ in range(hidden_layer_size)] for _ in range(2)]
-biases = [[random_uniform_start(-1, 1) for _ in range(hidden_layer_size)] for _ in range(2)]
+HIDDEN_LAYER_SIZE = 4
+weights = [[random_uniform_start(-1, 1) for _ in range(HIDDEN_LAYER_SIZE)] for _ in range(2)]
+biases = [[random_uniform_start(-1, 1) for _ in range(HIDDEN_LAYER_SIZE)] for _ in range(2)]
 
-def save_model(filename = model_file_path):
+def save_model(filename = MODEL_FILE_PATH):
     with open(filename, "w") as f:
         json.dump({"weights": weights, "biases": biases}, f)
     
-def load_model(filename = model_file_path):
+def load_model(filename = MODEL_FILE_PATH):
     global weights, biases
     with open(filename, "r") as f:
         data = json.load(f)
     weights = data["weights"]
     biases = data["biases"]
 
-INPUT_MIN = generate_training.min_num
-INPUT_MAX = generate_training.max_num
+INPUT_MIN = generate_training.MIN_NUM
+INPUT_MAX = generate_training.MAX_NUM
 def normalize(f):
     return (f - INPUT_MIN) / (INPUT_MAX - INPUT_MIN) * 2 - 1
 
@@ -61,15 +61,15 @@ def train(trials, auto_save = True):
     if trials < 1:
         return
     training_data = []
-    with open(generate_training.file_path, "r") as f:
+    with open(generate_training.OUTPUT_FILE_PATH, "r") as f:
         for line in f:
             fahrenheit, celsius = line.strip().split("\t")
             training_data.append((float(fahrenheit), float(celsius)))
     
     # back propagation
     for _ in range(trials):
-        w_nudge = [[0 for _ in range(hidden_layer_size)] for _ in range(2)]
-        b_nudge = [[0 for _ in range(hidden_layer_size)] for _ in range(2)]
+        w_nudge = [[0 for _ in range(HIDDEN_LAYER_SIZE)] for _ in range(2)]
+        b_nudge = [[0 for _ in range(HIDDEN_LAYER_SIZE)] for _ in range(2)]
         for fahrenheit, y in training_data:
             norm_f = normalize(fahrenheit)
             norm_y = normalize_output(y)          # normalize the target too
@@ -79,12 +79,12 @@ def train(trials, auto_save = True):
             )
             error = prediction_raw - norm_y       # error in normalized space
 
-            for k in range(hidden_layer_size):
+            for k in range(HIDDEN_LAYER_SIZE):
                 a = math.tanh(norm_f * weights[0][k] + biases[0][k])
                 w_nudge[1][k] += a * 2 * error / len(training_data)
                 b_nudge[1][k] += 2 * error / len(training_data)
 
-            for j in range(hidden_layer_size):
+            for j in range(HIDDEN_LAYER_SIZE):
                 z = norm_f * weights[0][j] + biases[0][j]
                 sech2 = (1 / math.cosh(z)) ** 2
                 w_nudge[0][j] += norm_f * sech2 * weights[1][j] * 2 * error / len(training_data)
@@ -105,7 +105,6 @@ except FileNotFoundError:
     print("Creating new model.")
     
 if __name__ == "__main__":
-
     start_time = time.perf_counter()
     print("Starting training...")
     train(100000)
